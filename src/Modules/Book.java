@@ -30,6 +30,16 @@ public class Book implements Borrowable , Reservable {
         this.BookPages = BookPages;
     }
 
+    public Book(String bookName, String BookAuthor, int bookYear, int bookQuantity, String BookGenre, String BookLanguage, int BookPages) {
+        this.bookName = bookName;
+        this.bookYear = bookYear;
+        this.bookQuantity = bookQuantity;
+        this.BookAuthor = BookAuthor;
+        this.BookGenre = BookGenre;
+        this.BookLanguage = BookLanguage;
+        this.BookPages = BookPages;
+    }
+
     public int getBookId() {return bookId;}
     public String getBookAuthor() {
         return BookAuthor;
@@ -66,31 +76,28 @@ public class Book implements Borrowable , Reservable {
         return false;
     }
 
-    public static void createBook() throws DuplicateBookNameException {
-        Scanner scanner = new Scanner(System.in);
-        int bookId = validateBookId(scanner);
-        scanner.nextLine();
-
-        String bookName = validateBookName(scanner);
-        String bookAuthor = validateBookAuthor(scanner);
-        int bookYear = validateBookYear(scanner);
-        int bookPages = validateBookPages(scanner);
-        int bookQuantity = validateBookQuantity(scanner);
-        scanner.nextLine();
-        String bookGenre = validateBookGenre(scanner);
-        String bookLanguage = validateBookLanguage(scanner);
-
-        if (!checkIfBookNameExists(bookId)) {
-            Book newBook = new Book(bookId, bookName, bookAuthor, bookYear, bookQuantity, bookGenre, bookLanguage, bookPages);
-            List<Book> bookList = loadBooksFromFile("books.txt");
+    public static void createBook(int bookId, String bookName, String author, int bookYear, int bookPages, int bookQuantity, String bookGenre, String bookLanguage) throws DuplicateBookNameException {
+        if (!checkIfBookNameExists(bookName)) {
+            Book newBook = new Book(bookId, bookName, author, bookYear, bookQuantity, bookGenre, bookLanguage, bookPages);
+            List<Book> bookList = loadBooksFromFile(FILE_PATH);
             bookList.add(newBook);
-            saveBooksToFile(bookList, "books.txt");
+            saveBooksToFile(bookList, FILE_PATH);
             System.out.println("Book created successfully.");
         } else {
             throw new DuplicateBookNameException("Error: Book name already exists.");
         }
-        scanner.close();
     }
+
+    private static boolean checkIfBookNameExists(String bookName) {
+        List<Book> books = loadBooksFromFile(FILE_PATH);
+        for (Book book : books) {
+            if (book.getBookName().equalsIgnoreCase(bookName)) {
+                return true;
+            }
+        }
+        return false;
+    }
+
 
     private static String validateBookAuthor(Scanner scanner) {
         String bookAuthor;
@@ -166,15 +173,9 @@ public class Book implements Borrowable , Reservable {
         } while (bookLanguage.isEmpty());
         return bookLanguage;
     }
-    public static void updateBook() {
-        Scanner scanner = new Scanner(System.in);
-        int bookId = validateBookId(scanner);
-        scanner.nextLine();
-        String bookName = validateBookName(scanner);
-
+    public static void updateBook(int bookId, String bookName, String author, int bookYear, int bookPages, int bookQuantity, String bookGenre, String bookLanguage) {
         List<Book> books = loadBooksFromFile("books.txt");
         boolean bookFound = false;
-
         for (Book book : books) {
             if (book.getBookId() == bookId) {
                 book.setBookName(bookName);
@@ -188,7 +189,6 @@ public class Book implements Borrowable , Reservable {
         } else {
             System.out.println("Book not found.");
         }
-        scanner.close();
     }
 
     private static int validateBookId(Scanner scanner) {
@@ -231,7 +231,7 @@ public class Book implements Borrowable , Reservable {
         }
     }
 
-    private static List<Book> loadBooksFromFile(String filePath) {
+    public static List<Book> loadBooksFromFile(String filePath) {
         List<Book> books = new ArrayList<>();
         File file = new File(filePath);
 
@@ -287,19 +287,7 @@ public class Book implements Borrowable , Reservable {
         }
     }
 
-    public static void deleteBook() {
-        Scanner scanner = new Scanner(System.in);
-        int bookId;
-        while (true) {
-            System.out.print("Enter the ID of the book to delete: ");
-            try {
-                bookId = scanner.nextInt();
-                break;
-            } catch (InputMismatchException e) {
-                System.out.println("Invalid input. Please enter a valid integer.");
-                scanner.next();
-            }
-        }
+    public static void deleteBook(int bookId) {
 
         List<Book> books = loadBooksFromFile("books.txt");
         boolean bookFound = false;
@@ -319,7 +307,6 @@ public class Book implements Borrowable , Reservable {
         } else {
             System.out.println("Book not found. Deletion failed.");
         }
-        scanner.close();
     }
     @Override
     public void isBorrowable() {

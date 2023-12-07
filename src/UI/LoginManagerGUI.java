@@ -1,6 +1,5 @@
 package UI;
 
-
 import Exceptions.DuplicateBookNameException;
 import Exceptions.DuplicateUsernameException;
 import Users.User;
@@ -9,33 +8,63 @@ import javax.swing.*;
 import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
+import java.awt.event.KeyEvent;
 
-public class LoginManagerGUI{
+public class LoginManagerGUI {
     private static boolean loginStatus;
 
-    public static void main(String[] args)  {
+    public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Login Manager");
             frame.setSize(400, 200);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
-            JPanel panel = new JPanel();
-            panel.setLayout(new GridLayout(3, 2));
+            JPanel panel = new JPanel(new GridBagLayout());
+            GridBagConstraints gbc = new GridBagConstraints();
+            gbc.insets = new Insets(5, 5, 5, 5); // Add padding
 
-            JTextField usernameField = new JTextField();
-            JPasswordField passwordField = new JPasswordField();
+            JTextField usernameField = new JTextField(15);
+            JPasswordField passwordField = new JPasswordField(15);
 
             JButton loginButton = new JButton("Login");
             JButton exitButton = new JButton("Exit");
 
-            panel.add(new JLabel("Username:"));
-            panel.add(usernameField);
-            panel.add(new JLabel("Password:"));
-            panel.add(passwordField);
-            panel.add(loginButton);
-            panel.add(exitButton);
+            // Add components with GridBagConstraints
+            gbc.gridx = 0;
+            gbc.gridy = 0;
+            panel.add(new JLabel("Username:"), gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 0;
+            panel.add(usernameField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 1;
+            panel.add(new JLabel("Password:"), gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 1;
+            panel.add(passwordField, gbc);
+
+            gbc.gridx = 0;
+            gbc.gridy = 2;
+            panel.add(loginButton, gbc);
+            gbc.gridx = 1;
+            gbc.gridy = 2;
+            panel.add(exitButton, gbc);
 
             frame.add(panel);
+
+            // Add key bindings for Enter key
+            InputMap inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
+            ActionMap actionMap = panel.getActionMap();
+
+            inputMap.put(KeyStroke.getKeyStroke(KeyEvent.VK_ENTER, 0), "submit");
+            actionMap.put("submit", new AbstractAction() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    // Trigger loginButton click when Enter is pressed
+                    loginButton.doClick();
+                }
+            });
 
             loginButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
