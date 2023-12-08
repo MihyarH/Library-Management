@@ -1,6 +1,7 @@
 package Users;
 
 import Exceptions.DuplicateUsernameException;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -8,16 +9,18 @@ import java.util.List;
 import java.util.Scanner;
 
 public class User {
-        private String username;
-        private String password;
-        private UserRole role;
+    private String username;
+    private String password;
+    private int userId;
+    private UserRole role;
 
-        public User(String username, String password, UserRole role) {
-            this.username = username;
-            this.password = password;
-            this.role = role;
+    public User(int userId,String username, String password, UserRole role) {
+        this.userId = userId;
+        this.username = username;
+        this.password = password;
+        this.role = role;
+    }
 
-        }
     public String getUsername() {
         return username;
     }
@@ -29,6 +32,9 @@ public class User {
     public UserRole getRole() {
         return role;
     }
+    public int getUserId() {
+        return userId;
+    }
 
     public boolean isAdmin() {
         return role == UserRole.ADMIN;
@@ -39,41 +45,28 @@ public class User {
     }
 
     public static User getUserByUsername(String username) {
-        String filePath = "users.txt";
-        try (BufferedReader reader = new BufferedReader(new FileReader(filePath))) {
-            String line;
-            while ((line = reader.readLine()) != null) {
-                String[] userData = line.split(",");
-                if (userData.length == 3) {
-                    String user = userData[0];
-                    String password = userData[1];
-                    String role = userData[2];
-                    if (user.equals(username)) {
-                        return new User(user, password, UserRole.valueOf(role));
-                    }
-                } else {
-                    System.err.println("Invalid user data: " + line);
-                }
+        List<User> users = loadUsersFromFile("users.txt");
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return user;
             }
-        } catch (IOException e) {
-            System.err.println("Failed to read from file " + filePath + ": " + e.getMessage());
         }
         return null;
     }
 
-        public static void saveUsersToFile(List<User> users, String filePath) {
-            try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
-                for (User user : users) {
-                    writer.write(user.getUsername() + "," + user.getPassword() + "," + user.getRole() + "\n");
-                }
-                System.out.println("Users saved to file successfully.");
-            } catch (IOException e) {
-                e.printStackTrace();
-                System.err.println("Failed to save users to file.");
+    public static void saveUsersToFile(List<User> users, String filePath) {
+        try (BufferedWriter writer = new BufferedWriter(new FileWriter(filePath))) {
+            for (User user : users) {
+                writer.write(user.getUserId() + ","+ user.getUsername() + "," + user.getPassword() + "," + user.getRole() + "\n");
             }
+            System.out.println("Users saved to file successfully.");
+        } catch (IOException e) {
+            e.printStackTrace();
+            System.err.println("Failed to save users to file.");
         }
+    }
 
-        public static boolean checkLogin(String username, String password) {
+    public static boolean checkLogin(String username, String password) {
         List<User> users = loadUsersFromFile("users.txt");
         for (User user : users) {
             if (user.getUsername().equals(username) && user.getPassword().equals(password)) {
@@ -83,60 +76,57 @@ public class User {
         return false;
     }
 
-        private static List<User> loadUsersFromFile(String filePath) {
-            List<User> users = new ArrayList<>();
-            File file = new File(filePath);
-            if (!file.exists()) {
-                try {
-                    if (file.createNewFile()) {
-                        System.out.println("File " + filePath + " created successfully.");
-                    }
-                } catch (IOException e) {
-                    e.printStackTrace();
-                    System.err.println("Failed to create file " + filePath);
-                    return users;
+    public static List<User> loadUsersFromFile(String filePath) {
+        List<User> users = new ArrayList<>();
+        File file = new File(filePath);
+        if (!file.exists()) {
+            try {
+                if (file.createNewFile()) {
+                    System.out.println("File " + filePath + " created successfully.");
                 }
-            }
-
-            try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
-                String line;
-                while ((line = reader.readLine()) != null) {
-                    String[] userParts = line.split(",");
-                    String username = userParts[0];
-                    String password = userParts[1];
-                    UserRole role = UserRole.valueOf(userParts[2]);
-                    User user = new User(username, password, role);
-                    users.add(user);
-                }
-            } catch (IOException | IllegalArgumentException e) {
+            } catch (IOException e) {
                 e.printStackTrace();
-                System.err.println("Failed to read from file " + filePath);
+                System.err.println("Failed to create file " + filePath);
+                return users;
             }
-            return users;
         }
 
-        private static boolean checkIfUsernameExists(String username) {
-            List<User> users = loadUsersFromFile("users.txt");
-            for (User user : users) {
-                if (user.getUsername().equals(username)) {
-                    return true;
-                }
+        try (BufferedReader reader = new BufferedReader(new FileReader(file))) {
+            String line;
+            while ((line = reader.readLine()) != null) {
+                String[] userParts = line.split(",");
+                int userId = Integer.parseInt(userParts[0]);
+                String username = userParts[1];
+                String password = userParts[2];
+                UserRole role = UserRole.valueOf(userParts[3]);
+                User user = new User(userId,username, password, role);
+                users.add(user);
             }
-            return false;
+        } catch (IOException | IllegalArgumentException e) {
+            e.printStackTrace();
+            System.err.println("Failed to read from file " + filePath);
         }
+        return users;
+    }
 
-    public static void createUser(UserRole role) throws DuplicateUsernameException {
-        Scanner scanner = new Scanner(System.in);
-        String username = validateUsername(scanner);
-        String password = validatePassword(scanner);
+    private static boolean checkIfUsernameExists(String username) {
+        List<User> users = loadUsersFromFile("users.txt");
+        for (User user : users) {
+            if (user.getUsername().equals(username)) {
+                return true;
+            }
+        }
+        return false;
+    }
 
+    public static void createUser(int userId,String username, String password, UserRole role) throws DuplicateUsernameException {
         if (username == null || password == null || role == null) {
             System.err.println("Invalid input parameters");
             return;
         }
 
         if (!checkIfUsernameExists(username)) {
-            User newUser = new User(username, password, role);
+            User newUser = new User(userId,username, password, role);
             List<User> userList = loadUsersFromFile("users.txt");
             userList.add(newUser);
             saveUsersToFile(userList, "users.txt");
@@ -144,45 +134,14 @@ public class User {
         } else {
             throw new DuplicateUsernameException("Error: Username already exists.");
         }
-        scanner.close();
     }
 
-    private static String validateUsername(Scanner scanner) {
-        String username;
-        do {
-            System.out.print("Enter your new username: ");
-            username = scanner.nextLine().trim();
-            if (username.isEmpty()) {
-                System.out.println("Username cannot be empty. Please enter a valid username.");
-            }
-        } while (username.isEmpty());
-        return username;
-    }
-
-    private static String validatePassword(Scanner scanner) {
-        String password;
-        do {
-            System.out.print("Enter your new password: ");
-            password = scanner.nextLine();
-            if (password.isEmpty()) {
-                System.out.println("Password cannot be empty. Please enter a valid password.");
-            }
-        } while (password.isEmpty());
-        return password;
-    }
-    public void setPassword(String newPassword) {
-        this.password = newPassword;
-    }
-
-    public static void updateUser() {
-        Scanner scanner = new Scanner(System.in);
-        String username = validateUsername(scanner);
-        String newPassword = validateNewPassword(scanner);
+    public static void updateUser(String username, String newPassword) {
         List<User> users = loadUsersFromFile("users.txt");
         boolean userFound = false;
         for (User user : users) {
             if (user.getUsername().equals(username)) {
-                user.setPassword(newPassword);
+                user.password = (newPassword);
                 userFound = true;
                 break;
             }
@@ -193,18 +152,6 @@ public class User {
         } else {
             System.out.println("User not found. Password not updated.");
         }
-        scanner.close();
-    }
-    private static String validateNewPassword(Scanner scanner) {
-        String password;
-        do {
-            System.out.print("Enter your new password: ");
-            password = scanner.nextLine();
-            if (password.isEmpty()) {
-                System.out.println("Password cannot be empty. Please enter a valid password.");
-            }
-        } while (password.isEmpty());
-        return password;
     }
 
     public static void listUsers() {
@@ -215,6 +162,7 @@ public class User {
         } else {
             System.out.println("List of Users:");
             for (User user : users) {
+                System.out.println("User ID: " + user.getUserId());
                 System.out.println("Username: " + user.getUsername());
                 System.out.println("Password: " + user.getPassword());
                 System.out.println("Role: " + user.getRole());
@@ -223,17 +171,14 @@ public class User {
         }
     }
 
-    public static void deleteUser() {
-        Scanner scanner = new Scanner(System.in);
-        String username = validateUsername(scanner);
-
+    public static void deleteUser(int userId) {
         List<User> users = loadUsersFromFile("users.txt");
         boolean userFound = false;
 
         Iterator<User> iterator = users.iterator();
         while (iterator.hasNext()) {
             User user = iterator.next();
-            if (user.getUsername().equals(username)) {
+            if (user.getUserId() == userId) {
                 iterator.remove();
                 userFound = true;
                 break;
@@ -245,6 +190,5 @@ public class User {
         } else {
             System.out.println("User not found. Deletion failed.");
         }
-        scanner.close();
     }
 }

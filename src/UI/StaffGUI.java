@@ -139,7 +139,6 @@ public class StaffGUI {
             deleteButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // This part is now handled by the DeleteBookDialog
                     new DeleteBookDialog(frame).setVisible(true);
                 }
             });

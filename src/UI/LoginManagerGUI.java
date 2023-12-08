@@ -53,7 +53,6 @@ public class LoginManagerGUI {
 
             frame.add(panel);
 
-            // Add key bindings for Enter key
             InputMap inputMap = panel.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW);
             ActionMap actionMap = panel.getActionMap();
 
@@ -61,7 +60,6 @@ public class LoginManagerGUI {
             actionMap.put("submit", new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Trigger loginButton click when Enter is pressed
                     loginButton.doClick();
                 }
             });

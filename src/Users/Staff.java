@@ -40,7 +40,6 @@ public class Staff {
 
             updateButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    // Assume you have the necessary information to update a book
                     Book.updateBook(1, "Updated Book", "Updated Author", 2023, 300, 20, "Fiction", "English");
                     refreshBookList();
                 }
@@ -48,7 +47,7 @@ public class Staff {
 
             listButton.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    Book.listBooks(); // You may want to display the list or perform other actions
+                    Book.listBooks();
                     refreshBookList();
                 }
             });
