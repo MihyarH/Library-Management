@@ -11,7 +11,7 @@ import java.util.*;
 public class Book implements Borrowable , Reservable {
     private static final String FILE_PATH = "books.txt";
     private int bookId;
-    private String bookName;
+    private static String bookName;
     private int bookYear;
     private int bookQuantity;
     private String BookAuthor;
@@ -265,6 +265,24 @@ public class Book implements Borrowable , Reservable {
 
         return books;
     }
+
+
+    public static void searchForBook(String bookName) {
+        boolean bookFound = false;
+
+        for (Book book : loadBooksFromFile("books.txt")) {
+            if (book.getBookName().equals(bookName)) {
+                System.out.println("Book " + book.getBookName() + " exists");
+                bookFound = true;
+                break;
+            }
+        }
+
+        if (!bookFound) {
+            System.out.println("Book not found");
+        }
+    }
+
 
     public static void listBooks() {
         List<Book> books = loadBooksFromFile("books.txt");
