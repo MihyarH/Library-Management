@@ -8,6 +8,8 @@ import Modules.Interfaces.Reservable;
 import java.io.*;
 import java.util.*;
 
+import static UI.StaffGUI.bookListTextArea;
+
 public class Book implements Borrowable , Reservable {
     private static final String FILE_PATH = "books.txt";
     private int bookId;
@@ -269,19 +271,25 @@ public class Book implements Borrowable , Reservable {
 
     public static void searchForBook(String bookName) {
         boolean bookFound = false;
+        StringBuilder resultText = new StringBuilder();
 
-        for (Book book : loadBooksFromFile("books.txt")) {
-            if (book.getBookName().equals(bookName)) {
-                System.out.println("Book " + book.getBookName() + " exists");
+        List<Book> books = Book.loadBooksFromFile("books.txt");
+        for (Book book : books) {
+            if (book.getBookName().equalsIgnoreCase(bookName)) {
+                resultText.append("Book ").append(book.getBookName()).append(" exists and there are ").append(book.getBookQuantity()).append(" copies available");
                 bookFound = true;
                 break;
             }
         }
 
         if (!bookFound) {
-            System.out.println("Book not found");
+            resultText.append("Book not found");
         }
+
+        bookListTextArea.setText(resultText.toString());
     }
+
+
 
 
     public static void listBooks() {

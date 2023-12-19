@@ -11,17 +11,18 @@ import java.awt.event.KeyEvent;
 import java.util.List;
 
 public class StaffGUI {
-    private static JTextArea bookListTextArea;
+    public static JTextArea bookListTextArea;
 
     public static void main(String[] args) {
         SwingUtilities.invokeLater(() -> {
             JFrame frame = new JFrame("Library Management System");
-            frame.setSize(500, 400);
+            frame.setSize(1000, 400);
             frame.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
 
             JPanel panel = new JPanel(new GridLayout(5, 1, 20, 20));
 
             JButton createButton = new JButton("Create Book");
+            JButton searchButton = new JButton("Search for a Book");
             JButton updateButton = new JButton("Update Book");
             JButton listButton = new JButton("List Books");
             JButton deleteButton = new JButton("Delete Book");
@@ -29,12 +30,14 @@ public class StaffGUI {
 
             Font buttonFont = new Font("Arial", Font.PLAIN, 16);
             createButton.setFont(buttonFont);
+            searchButton.setFont(buttonFont);
             updateButton.setFont(buttonFont);
             listButton.setFont(buttonFont);
             deleteButton.setFont(buttonFont);
             exitButton.setFont(buttonFont);
 
             panel.add(createButton);
+            panel.add(searchButton);
             panel.add(updateButton);
             panel.add(listButton);
             panel.add(deleteButton);
@@ -54,11 +57,9 @@ public class StaffGUI {
             actionMap.put("create", new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Open the CreateBookDialog when the 'Create Book' button is pressed
                     CreateBookDialog createBookDialog = new CreateBookDialog(frame);
                     createBookDialog.setVisible(true);
 
-                    // Refresh the book list when the dialog is closed
                     createBookDialog.addWindowListener(new java.awt.event.WindowAdapter() {
                         @Override
                         public void windowClosed(java.awt.event.WindowEvent windowEvent) {
@@ -72,11 +73,9 @@ public class StaffGUI {
             actionMap.put("update", new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Open the UpdateBookDialog when the 'Update Book' button is pressed
                     UpdateBookDialog updateBookDialog = new UpdateBookDialog(frame);
                     updateBookDialog.setVisible(true);
 
-                    // Refresh the book list when the dialog is closed
                     updateBookDialog.addWindowListener(new java.awt.event.WindowAdapter() {
                         @Override
                         public void windowClosed(java.awt.event.WindowEvent windowEvent) {
@@ -90,11 +89,9 @@ public class StaffGUI {
             actionMap.put("delete", new AbstractAction() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // Open the DeleteBookDialog when the 'Delete Book' button is pressed
                     DeleteBookDialog deleteBookDialog = new DeleteBookDialog(frame);
                     deleteBookDialog.setVisible(true);
 
-                    // Refresh the book list when the dialog is closed
                     deleteBookDialog.addWindowListener(new java.awt.event.WindowAdapter() {
                         @Override
                         public void windowClosed(java.awt.event.WindowEvent windowEvent) {
@@ -123,15 +120,19 @@ public class StaffGUI {
             createButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // This part is now handled by the CreateBookDialog
                     new CreateBookDialog(frame).setVisible(true);
+                }
+            });
+            searchButton.addActionListener(new ActionListener() {
+                @Override
+                public void actionPerformed(ActionEvent e) {
+                    new SearchBookDialog(frame).setVisible(true);
                 }
             });
 
             updateButton.addActionListener(new ActionListener() {
                 @Override
                 public void actionPerformed(ActionEvent e) {
-                    // This part is now handled by the UpdateBookDialog
                     new UpdateBookDialog(frame).setVisible(true);
                 }
             });
